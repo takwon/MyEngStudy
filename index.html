@@ -13,193 +13,1012 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  :root{--bg:#0d0f14;--surface:#141720;--card:#1a1e2e;--border:#252a3d;--a1:#5b8dee;--a2:#f7c948;--a3:#3ecf8e;--a4:#f06595;--text:#e8eaf0;--muted:#6b7194;--safe-top:env(safe-area-inset-top,0px);--safe-bot:env(safe-area-inset-bottom,0px);}
-  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-  html,body{height:100%;overflow:hidden;}
-  body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;padding-top:var(--safe-top);padding-bottom:var(--safe-bot);}
-  #splash{position:fixed;inset:0;background:var(--bg);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity 0.5s;}
-  #splash.fade{opacity:0;pointer-events:none;}
-  .sp-icon{font-size:54px;animation:pulse 1.2s ease infinite;}
-  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
-  .sp-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .sp-sub{font-size:0.78rem;color:var(--muted);letter-spacing:0.08em;}
-  .sp-bar{width:120px;height:3px;background:var(--border);border-radius:2px;overflow:hidden;margin-top:8px;}
-  .sp-fill{height:100%;background:linear-gradient(90deg,var(--a1),var(--a3));border-radius:2px;animation:ld 1.3s ease forwards;}
-  @keyframes ld{from{width:0}to{width:100%}}
-  #installBanner{display:none;background:linear-gradient(135deg,#1a1e2e,#252a3d);border-bottom:1px solid var(--a1);padding:10px 16px;align-items:center;gap:10px;}
-  #installBanner.show{display:flex;}
-  .ib-icon{font-size:22px;flex-shrink:0;}
-  .ib-text{flex:1;}
-  .ib-text strong{display:block;font-size:0.82rem;color:var(--text);}
-  .ib-text span{font-size:0.7rem;color:var(--muted);}
-  .ib-btn{background:var(--a1);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:0.75rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif;}
-  .ib-x{background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 4px;}
-  #iosHint{display:none;background:#1a1e2e;border:1px solid var(--a1);border-radius:12px;margin:8px 14px;padding:10px 14px;font-size:0.75rem;color:var(--text);line-height:1.6;}
-  #iosHint.show{display:block;}
-  #iosHint strong{color:var(--a2);}
-  .ios-x{float:right;background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;margin-left:8px;}
-  #offlineBadge{display:none;background:#f7c94820;border-bottom:1px solid var(--a2);padding:6px 16px;font-size:0.72rem;color:var(--a2);text-align:center;}
-  #offlineBadge.show{display:block;}
-  header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 18px 11px;flex-shrink:0;}
-  .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-  .hdr-title{font-family:'Playfair Display',serif;font-size:1.12rem;font-weight:700;background:linear-gradient(135deg,var(--a1),var(--a2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-  .hdr-date{font-family:'JetBrains Mono',monospace;font-size:0.68rem;color:var(--muted);}
-  .prog-wrap{display:flex;align-items:center;gap:10px;}
-  .prog-bar{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-  .prog-fill{height:100%;background:linear-gradient(90deg,var(--a1),var(--a3));border-radius:3px;transition:width 0.4s ease;}
-  .prog-lbl{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--a3);font-weight:700;white-space:nowrap;}
-  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
-  .tab{flex:1;padding:11px 8px;text-align:center;font-size:0.77rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;user-select:none;}
-  .tab.active{color:var(--a1);border-bottom-color:var(--a1);}
-  .page{display:none;padding:16px 14px;overflow-y:auto;flex:1;}
-  .page.active{display:block;}
-  .plabel{font-family:'JetBrains Mono',monospace;font-size:0.63rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;}
-  .scard{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px 15px 13px;position:relative;overflow:hidden;margin-bottom:11px;transition:transform .1s;}
-  .scard:active{transform:scale(0.99);}
-  .scard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ca);border-radius:14px 0 0 14px;}
-  .scard.done{background:#1b2c1b;border-color:var(--a3);}
-  .scard.done::before{background:var(--a3);}
-  .c1{--ca:var(--a1);}.c2{--ca:var(--a2);}.c3{--ca:var(--a3);}.c4{--ca:var(--a4);}
-  .cr1{display:flex;align-items:center;gap:11px;margin-bottom:10px;}
-  .cico{width:35px;height:35px;flex-shrink:0;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;}
-  .cinf{flex:1;min-width:0;}
-  .ctit{font-size:0.88rem;font-weight:600;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .curl{font-size:0.66rem;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px;}
-  .ckbtn{width:31px;height:31px;flex-shrink:0;border-radius:50%;border:2px solid var(--border);background:transparent;color:var(--muted);font-size:14px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;}
-  .ckbtn.on{background:var(--a3);border-color:var(--a3);color:#fff;}
-  .cr2{display:flex;gap:8px;}
-  .obtn{flex:1;border-radius:9px;padding:8px;font-size:0.73rem;font-weight:600;text-align:center;text-decoration:none;display:block;font-family:'DM Sans',sans-serif;}
-  .ebtn{background:var(--surface);border:1px solid var(--border);color:var(--muted);border-radius:9px;padding:8px 12px;font-size:0.73rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
-  .cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-  .cal-ttl{font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;}
-  .cnav{display:flex;gap:6px;}
-  .cnav button{background:var(--card);border:1px solid var(--border);color:var(--text);width:29px;height:29px;border-radius:7px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;}
-  .legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:13px;}
-  .lgit{display:flex;align-items:center;gap:5px;font-size:0.65rem;color:var(--muted);}
-  .lgdot{width:9px;height:9px;border-radius:3px;}
-  .crow{display:grid;grid-template-columns:46px 1fr;gap:9px;align-items:center;padding:6px 8px;border-radius:9px;margin-bottom:2px;border:1px solid transparent;}
-  .crow.tdy{background:rgba(91,141,238,0.1);border-color:rgba(91,141,238,0.25);}
-  .dnum{font-family:'JetBrains Mono',monospace;font-size:0.85rem;font-weight:600;text-align:right;line-height:1;}
-  .dnum.tdy{color:var(--a1);}.dnum.sun{color:#f87171;}.dnum.sat{color:var(--a1);}
-  .dname{font-size:0.58rem;text-transform:uppercase;letter-spacing:0.06em;text-align:right;margin-top:1px;color:var(--muted);}
-  .dname.sun{color:#f87171;}.dname.sat{color:var(--a1);}
-  .dots{display:flex;gap:4px;align-items:center;}
-  .dot{width:20px;height:20px;border-radius:5px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-  .dot.done{background:color-mix(in srgb,var(--dc) 28%,transparent);color:var(--dc);border:1px solid color-mix(in srgb,var(--dc) 45%,transparent);}
-  .dot.undone{background:var(--card);color:var(--muted);border:1px solid var(--border);}
-  .dot.future{opacity:0.2;background:var(--border);border:1px solid transparent;color:transparent;}
-  .d1{--dc:var(--a1);}.d2{--dc:var(--a2);}.d3{--dc:var(--a3);}.d4{--dc:var(--a4);}
-  .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(5px);z-index:200;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
-  .overlay.open{opacity:1;pointer-events:all;}
-  .mbox{background:var(--card);border:1px solid var(--border);border-radius:22px 22px 0 0;padding:20px 18px calc(28px + var(--safe-bot)) 18px;width:100%;transform:translateY(30px);transition:transform .25s;}
-  .overlay.open .mbox{transform:translateY(0);}
-  .mdrag{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
-  .mbox h3{font-family:'Playfair Display',serif;font-size:1rem;margin-bottom:16px;}
-  .mbox label{display:block;font-size:0.68rem;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;}
-  .mbox input{width:100%;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:0.88rem;margin-bottom:12px;outline:none;transition:border-color .15s;}
-  .mbox input:focus{border-color:var(--a1);}
-  .mbtns{display:flex;gap:9px;margin-top:4px;}
-  .bsave{flex:1;background:var(--a1);color:#fff;border:none;border-radius:12px;padding:13px;font-weight:700;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
-  .bcancel{flex:1;background:var(--surface);color:var(--muted);border:1px solid var(--border);border-radius:12px;padding:13px;font-size:0.88rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
-  #toast{position:fixed;bottom:calc(80px + var(--safe-bot));left:50%;transform:translateX(-50%) translateY(10px);background:var(--a3);color:#fff;padding:9px 22px;border-radius:30px;font-size:0.78rem;font-weight:600;opacity:0;transition:opacity .25s,transform .25s;z-index:300;white-space:nowrap;pointer-events:none;}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+/* ── 전역 ── */
+:root {
+  --bg: #0d0f14; --surface: #141720; --card: #1a1e2e; --border: #252a3d;
+  --a1: #5b8dee; --a2: #f7c948; --a3: #3ecf8e; --a4: #f06595;
+  --text: #e8eaf0; --muted: #6b7194;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --st: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  display: flex; flex-direction: column;
+  padding-top: var(--st); padding-bottom: var(--sb);
+}
+button { font-family: 'DM Sans', sans-serif; }
+
+/* ── 스플래시 ── */
+#splash {
+  position: fixed; inset: 0; background: var(--bg); z-index: 999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  transition: opacity .5s;
+}
+#splash.fade { opacity: 0; pointer-events: none; }
+.sp-icon { font-size: 54px; animation: pulse 1.2s ease infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.sp-title {
+  font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--a1), var(--a2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.sp-sub { font-size: .78rem; color: var(--muted); letter-spacing: .08em; }
+.sp-bar { width: 120px; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 8px; }
+.sp-fill { height: 100%; background: linear-gradient(90deg, var(--a1), var(--a3)); animation: barload 1.3s ease forwards; }
+@keyframes barload { from{width:0} to{width:100%} }
+
+/* ── 설치 배너 ── */
+#iBanner {
+  display: none; background: linear-gradient(135deg,#1a1e2e,#252a3d);
+  border-bottom: 1px solid var(--a1); padding: 10px 16px; align-items: center; gap: 10px;
+}
+#iBanner.show { display: flex; }
+.ib-icon { font-size: 22px; flex-shrink: 0; }
+.ib-txt { flex: 1; }
+.ib-txt strong { display: block; font-size: .82rem; color: var(--text); }
+.ib-txt span { font-size: .7rem; color: var(--muted); }
+.ib-btn { background: var(--a1); color: #fff; border: none; border-radius: 8px; padding: 7px 14px; font-size: .75rem; font-weight: 700; cursor: pointer; }
+.ib-x { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 2px 6px; }
+
+/* ── iOS 힌트 ── */
+#iosHint {
+  display: none; background: #1a1e2e; border: 1px solid var(--a1); border-radius: 12px;
+  margin: 8px 14px; padding: 10px 14px; font-size: .75rem; color: var(--text); line-height: 1.6;
+}
+#iosHint.show { display: block; }
+#iosHint strong { color: var(--a2); }
+.ios-x { float: right; background: none; border: none; color: var(--muted); font-size: 16px; cursor: pointer; margin-left: 8px; }
+
+/* ── 오프라인 뱃지 ── */
+#offBadge {
+  display: none; background: #f7c94820; border-bottom: 1px solid var(--a2);
+  padding: 6px 16px; font-size: .72rem; color: var(--a2); text-align: center;
+}
+#offBadge.show { display: block; }
+
+/* ── 헤더 ── */
+header {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 14px 18px 11px; flex-shrink: 0;
+}
+.hdr-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.hdr-title {
+  font-family: 'Playfair Display', serif; font-size: 1.12rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--a1), var(--a2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.hdr-date { font-family: 'JetBrains Mono', monospace; font-size: .68rem; color: var(--muted); }
+.prog-wrap { display: flex; align-items: center; gap: 10px; }
+.prog-bar { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.prog-fill { height: 100%; background: linear-gradient(90deg, var(--a1), var(--a3)); border-radius: 3px; transition: width .4s ease; }
+.prog-lbl { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--a3); font-weight: 700; white-space: nowrap; }
+
+/* ── 탭 ── */
+.tabs { display: flex; background: var(--surface); border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.tab {
+  flex: 1; padding: 11px 8px; text-align: center; font-size: .77rem; font-weight: 600;
+  color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+  transition: color .15s, border-color .15s; user-select: none;
+}
+.tab.active { color: var(--a1); border-bottom-color: var(--a1); }
+
+/* ── 페이지 ── */
+.page { display: none; padding: 16px 14px; overflow-y: auto; flex: 1; }
+.page.active { display: block; }
+.plabel {
+  font-family: 'JetBrains Mono', monospace; font-size: .63rem;
+  letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin-bottom: 13px;
+}
+
+/* ── 학습 카드 ── */
+.scard {
+  background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+  padding: 15px 15px 13px; position: relative; overflow: hidden; margin-bottom: 11px;
+  transition: transform .1s;
+}
+.scard:active { transform: scale(.99); }
+.scard::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  background: var(--ca); border-radius: 14px 0 0 14px;
+}
+.scard.done { background: #1b2c1b; border-color: var(--a3); }
+.scard.done::before { background: var(--a3); }
+.c1{--ca:var(--a1);} .c2{--ca:var(--a2);} .c3{--ca:var(--a3);} .c4{--ca:var(--a4);}
+
+.cr1 { display: flex; align-items: center; gap: 11px; margin-bottom: 10px; }
+.cico {
+  width: 35px; height: 35px; flex-shrink: 0; border-radius: 9px;
+  display: flex; align-items: center; justify-content: center; font-size: 16px;
+}
+.cinf { flex: 1; min-width: 0; }
+.ctit { font-size: .88rem; font-weight: 600; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.curl { font-size: .66rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-top: 2px; }
+.ckbtn {
+  width: 31px; height: 31px; flex-shrink: 0; border-radius: 50%;
+  border: 2px solid var(--border); background: transparent; color: var(--muted);
+  font-size: 14px; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .2s;
+}
+.ckbtn.on { background: var(--a3); border-color: var(--a3); color: #fff; }
+.cr2 { display: flex; gap: 8px; align-items: center; }
+.obtn {
+  flex: 1; border-radius: 9px; padding: 9px 8px; font-size: .73rem; font-weight: 600;
+  text-align: center; text-decoration: none; display: block; cursor: pointer; border: none;
+}
+.ebtn {
+  background: var(--surface); border: 1px solid var(--border); color: var(--muted);
+  border-radius: 9px; padding: 9px 12px; font-size: .73rem; cursor: pointer;
+}
+
+/* 항목3 파일선택 버튼 */
+.file-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: rgba(62,207,142,.15); border: 1px solid rgba(62,207,142,.5); color: var(--a3);
+  border-radius: 9px; padding: 9px 8px; font-size: .73rem; font-weight: 700;
+  cursor: pointer; transition: background .15s;
+}
+.file-btn:active { background: rgba(62,207,142,.28); }
+
+/* 항목4 Speak 버튼 */
+.speak-btn {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(240,101,149,.2), rgba(240,101,149,.35));
+  border: 1px solid rgba(240,101,149,.6); color: #fff;
+  border-radius: 9px; padding: 9px 8px; font-size: .73rem; font-weight: 700;
+  cursor: pointer; box-shadow: 0 2px 10px rgba(240,101,149,.2);
+}
+.speak-btn:active { opacity: .8; }
+
+/* ── 달력 ── */
+.cal-hdr { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.cal-ttl { font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; }
+.cnav { display: flex; gap: 6px; }
+.cnav button {
+  background: var(--card); border: 1px solid var(--border); color: var(--text);
+  width: 29px; height: 29px; border-radius: 7px; cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+}
+.legend { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 13px; }
+.lgit { display: flex; align-items: center; gap: 5px; font-size: .65rem; color: var(--muted); }
+.lgdot { width: 9px; height: 9px; border-radius: 3px; }
+.crow {
+  display: grid; grid-template-columns: 46px 1fr; gap: 9px; align-items: center;
+  padding: 6px 8px; border-radius: 9px; margin-bottom: 2px; border: 1px solid transparent;
+}
+.crow.tdy { background: rgba(91,141,238,.1); border-color: rgba(91,141,238,.25); }
+.dnum { font-family: 'JetBrains Mono', monospace; font-size: .85rem; font-weight: 600; text-align: right; line-height: 1; }
+.dnum.tdy { color: var(--a1); }
+.dnum.sun { color: #f87171; } .dnum.sat { color: var(--a1); }
+.dname { font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; text-align: right; margin-top: 1px; color: var(--muted); }
+.dname.sun { color: #f87171; } .dname.sat { color: var(--a1); }
+.dots { display: flex; gap: 4px; align-items: center; }
+.dot {
+  width: 20px; height: 20px; border-radius: 5px; font-size: 8px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+}
+.dot.done { background: color-mix(in srgb,var(--dc) 28%,transparent); color: var(--dc); border: 1px solid color-mix(in srgb,var(--dc) 45%,transparent); }
+.dot.undone { background: var(--card); color: var(--muted); border: 1px solid var(--border); }
+.dot.future { opacity: .2; background: var(--border); border: 1px solid transparent; color: transparent; }
+.d1{--dc:var(--a1);} .d2{--dc:var(--a2);} .d3{--dc:var(--a3);} .d4{--dc:var(--a4);}
+
+/* ── 편집 모달 ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.75); backdrop-filter: blur(5px);
+  z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+.mbox {
+  background: var(--card); border: 1px solid var(--border); border-radius: 22px 22px 0 0;
+  padding: 20px 18px calc(28px + var(--sb)) 18px; width: 100%;
+  transform: translateY(30px); transition: transform .25s;
+}
+.overlay.open .mbox { transform: translateY(0); }
+.mdrag { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 16px; }
+.mbox h3 { font-family: 'Playfair Display', serif; font-size: 1rem; margin-bottom: 16px; }
+.mbox label { display: block; font-size: .68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 4px; }
+.mbox input {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 12px; color: var(--text); font-size: .88rem; margin-bottom: 12px; outline: none;
+  transition: border-color .15s;
+}
+.mbox input:focus { border-color: var(--a1); }
+.mbtns { display: flex; gap: 9px; margin-top: 4px; }
+.bsave { flex: 1; background: var(--a1); color: #fff; border: none; border-radius: 12px; padding: 13px; font-weight: 700; font-size: .88rem; cursor: pointer; }
+.bcancel { flex: 1; background: var(--surface); color: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 13px; font-size: .88rem; cursor: pointer; }
+
+/* ══════════════════════════════════
+   플레이어 전체 화면
+══════════════════════════════════ */
+#playerScreen {
+  position: fixed; inset: 0; background: var(--bg); z-index: 400;
+  display: flex; flex-direction: column;
+  padding-top: var(--st); padding-bottom: var(--sb);
+  transform: translateY(100%); transition: transform .35s cubic-bezier(.4,0,.2,1);
+}
+#playerScreen.open { transform: translateY(0); }
+
+/* 플레이어 헤더 */
+.pl-hdr {
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+}
+.pl-back { background: none; border: none; color: var(--a3); font-size: 24px; cursor: pointer; line-height: 1; }
+.pl-hdr-title { font-family: 'Playfair Display', serif; font-size: .98rem; font-weight: 700; }
+.pl-hdr-cnt { font-family: 'JetBrains Mono', monospace; font-size: .65rem; color: var(--muted); }
+
+/* 플레이어 바디: 좌=컨트롤 우=목록 */
+.pl-body { display: flex; flex: 1; min-height: 0; overflow: hidden; }
+
+/* 좌측 컨트롤 */
+.pl-ctrl {
+  width: 54%; border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; padding: 14px 12px; overflow-y: auto; gap: 12px;
+}
+
+/* 현재 재생 정보 */
+.pl-now {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px;
+}
+.pl-now-lbl {
+  font-family: 'JetBrains Mono', monospace; font-size: .56rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--muted); margin-bottom: 5px;
+}
+.pl-now-name {
+  font-size: .82rem; font-weight: 600; line-height: 1.35;
+  overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.pl-now-idx { font-size: .64rem; color: var(--muted); margin-top: 3px; }
+
+/* 시크 바 */
+.pl-seek-wrap { display: flex; flex-direction: column; gap: 4px; }
+.pl-time-row {
+  display: flex; justify-content: space-between;
+  font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--muted);
+}
+.pl-seek {
+  width: 100%; height: 4px; background: var(--border); border-radius: 2px;
+  -webkit-appearance: none; appearance: none; cursor: pointer; outline: none;
+}
+.pl-seek::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 16px; height: 16px;
+  border-radius: 50%; background: var(--a3); cursor: pointer; margin-top: -6px;
+}
+.pl-seek::-webkit-slider-runnable-track { height: 4px; }
+
+/* AB 구간 표시 바 */
+.ab-track { height: 4px; background: var(--border); border-radius: 2px; position: relative; overflow: hidden; }
+.ab-fill {
+  position: absolute; height: 100%; background: linear-gradient(90deg, var(--a2), var(--a1));
+  border-radius: 2px; transition: left .08s, width .08s;
+}
+
+/* 메인 재생 버튼 */
+.pl-play {
+  width: 58px; height: 58px; border-radius: 50%; border: none;
+  background: linear-gradient(135deg, var(--a3), var(--a1));
+  color: #fff; font-size: 22px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 18px rgba(62,207,142,.35);
+  transition: transform .1s; flex-shrink: 0; align-self: center;
+}
+.pl-play:active { transform: scale(.92); }
+
+/* 트랜스포트 버튼 그리드 */
+.pl-trans {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px;
+}
+.tb {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 9px 4px; font-size: .65rem; font-weight: 600; color: var(--text);
+  cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: background .12s, border-color .12s;
+}
+.tb .ti { font-size: 16px; }
+.tb:active { background: var(--border); }
+.tb.set { background: rgba(91,141,238,.15); border-color: var(--a1); color: var(--a1); }
+.tb.loop-on { background: rgba(247,201,72,.15); border-color: var(--a2); color: var(--a2); }
+
+/* 배속 */
+.spd-row { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.spd-lbl { font-family: 'JetBrains Mono', monospace; font-size: .58rem; color: var(--muted); letter-spacing: .06em; white-space: nowrap; }
+.sb { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 4px 8px; font-size: .65rem; color: var(--muted); cursor: pointer; font-family: 'JetBrains Mono', monospace; }
+.sb.on { background: rgba(91,141,238,.18); border-color: var(--a1); color: var(--a1); font-weight: 700; }
+
+/* 우측 재생 목록 */
+.pl-list { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.pl-list-hdr {
+  padding: 10px 10px 6px;
+  font-family: 'JetBrains Mono', monospace; font-size: .58rem;
+  letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+  border-bottom: 1px solid var(--border); flex-shrink: 0;
+}
+.pl-list-body { flex: 1; overflow-y: auto; padding: 6px 6px; }
+.pl-empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 30px 10px; gap: 8px; color: var(--muted); text-align: center;
+}
+.pl-empty .em { font-size: 30px; opacity: .4; }
+.pl-empty p { font-size: .72rem; line-height: 1.5; }
+.pl-item {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 6px; border-radius: 8px; border: 1px solid transparent;
+  cursor: pointer; transition: background .1s; margin-bottom: 2px;
+}
+.pl-item:active { background: var(--card); }
+.pl-item.now { background: rgba(62,207,142,.1); border-color: rgba(62,207,142,.3); }
+.pl-num { font-family: 'JetBrains Mono', monospace; font-size: .6rem; color: var(--muted); width: 16px; text-align: right; flex-shrink: 0; }
+.pl-ico { font-size: 12px; flex-shrink: 0; }
+.pl-name { font-size: .7rem; font-weight: 500; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 1.3; }
+.pl-dur { font-family: 'JetBrains Mono', monospace; font-size: .58rem; color: var(--muted); white-space: nowrap; }
+/* 파일 추가 레이블 */
+.pl-add-wrap { padding: 8px 6px; flex-shrink: 0; border-top: 1px solid var(--border); }
+.pl-add-lbl {
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  background: var(--card); border: 1px dashed var(--border); border-radius: 9px;
+  padding: 9px; font-size: .7rem; color: var(--muted); cursor: pointer;
+}
+
+/* ── 토스트 ── */
+#toast {
+  position: fixed; bottom: calc(80px + var(--sb)); left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--a3); color: #fff; padding: 9px 22px; border-radius: 30px;
+  font-size: .78rem; font-weight: 600; opacity: 0;
+  transition: opacity .25s, transform .25s; z-index: 600; white-space: nowrap; pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
-<div id="splash"><div class="sp-icon">📖</div><div class="sp-title">My English Study</div><div class="sp-sub">하루 4가지 학습 루틴</div><div class="sp-bar"><div class="sp-fill"></div></div></div>
-<div id="installBanner"><div class="ib-icon">📲</div><div class="ib-text"><strong>홈 화면에 추가</strong><span>앱처럼 빠르게 실행 가능</span></div><button class="ib-btn" id="installBtn">설치</button><button class="ib-x" id="installClose">✕</button></div>
-<div id="iosHint"><button class="ios-x" id="iosClose">✕</button>📱 <strong>iPhone 홈 화면에 추가:</strong><br>Safari 하단 <strong>공유(□↑)</strong> → <strong>"홈 화면에 추가"</strong></div>
-<div id="offlineBadge">📡 오프라인 모드 — 저장된 데이터로 실행 중</div>
-<header>
-  <div class="hdr-top"><div class="hdr-title">📖 My English Study</div><div class="hdr-date" id="hdrDate"></div></div>
-  <div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div><div class="prog-lbl" id="progLbl">0/4</div></div>
-</header>
-<div class="tabs">
-  <div class="tab active" id="tab-study" onclick="sw('study')">📚 오늘 학습</div>
-  <div class="tab" id="tab-calendar" onclick="sw('calendar')">📅 달력</div>
+
+<!-- 스플래시 -->
+<div id="splash">
+  <div class="sp-icon">📖</div>
+  <div class="sp-title">My English Study</div>
+  <div class="sp-sub">하루 4가지 학습 루틴</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
 </div>
-<div class="page active" id="page-study"><div class="plabel">오늘의 학습 루틴</div><div id="studyList"></div></div>
+
+<!-- 설치 배너 (Android/Chrome) -->
+<div id="iBanner">
+  <div class="ib-icon">📲</div>
+  <div class="ib-txt"><strong>홈 화면에 추가</strong><span>앱처럼 빠르게 실행</span></div>
+  <button class="ib-btn" id="installBtn">설치</button>
+  <button class="ib-x" id="installClose">✕</button>
+</div>
+
+<!-- iOS 힌트 -->
+<div id="iosHint">
+  <button class="ios-x" id="iosClose">✕</button>
+  📱 <strong>iPhone 홈 화면에 추가:</strong><br>
+  Safari 하단 <strong>공유(□↑)</strong> 버튼 → <strong>"홈 화면에 추가"</strong> 선택
+</div>
+
+<!-- 오프라인 -->
+<div id="offBadge">📡 오프라인 모드 — 저장된 데이터로 실행 중</div>
+
+<!-- 헤더 -->
+<header>
+  <div class="hdr-top">
+    <div class="hdr-title">📖 My English Study</div>
+    <div class="hdr-date" id="hdrDate"></div>
+  </div>
+  <div class="prog-wrap">
+    <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+    <div class="prog-lbl" id="progLbl">0/4</div>
+  </div>
+</header>
+
+<!-- 탭 -->
+<div class="tabs">
+  <div class="tab active" id="tab-study"    onclick="switchTab('study')">📚 오늘 학습</div>
+  <div class="tab"        id="tab-calendar" onclick="switchTab('calendar')">📅 달력</div>
+</div>
+
+<!-- 학습 페이지 -->
+<div class="page active" id="page-study">
+  <div class="plabel">오늘의 학습 루틴</div>
+  <div id="studyList"></div>
+</div>
+
+<!-- 달력 페이지 -->
 <div class="page" id="page-calendar">
-  <div class="cal-hdr"><div class="cal-ttl" id="calTtl"></div><div class="cnav"><button onclick="chM(-1)">&#8249;</button><button onclick="chM(1)">&#8250;</button></div></div>
+  <div class="cal-hdr">
+    <div class="cal-ttl" id="calTtl"></div>
+    <div class="cnav">
+      <button onclick="chMonth(-1)">&#8249;</button>
+      <button onclick="chMonth(1)">&#8250;</button>
+    </div>
+  </div>
   <div class="legend" id="legend"></div>
   <div id="calList"></div>
 </div>
-<div class="overlay" id="overlay">
+
+<!-- 편집 모달 -->
+<div class="overlay" id="editOverlay">
   <div class="mbox">
     <div class="mdrag"></div>
-    <h3 id="mTtl">항목 편집</h3>
-    <label>제목</label><input id="eTitle" type="text" placeholder="학습 항목 제목">
-    <label>URL</label><input id="eUrl" type="url" inputmode="url" placeholder="https://...">
-    <label>아이콘 이모지</label><input id="eIcon" type="text" maxlength="2" placeholder="🎧">
-    <div class="mbtns"><button class="bcancel" onclick="closeMod()">취소</button><button class="bsave" onclick="saveMod()">저장</button></div>
+    <h3 id="editTitle">항목 편집</h3>
+    <label>제목</label>
+    <input id="eTitle" type="text" placeholder="학습 항목 제목">
+    <label>URL (링크 항목만)</label>
+    <input id="eUrl" type="text" placeholder="https://...">
+    <label>아이콘 이모지</label>
+    <input id="eIcon" type="text" maxlength="2" placeholder="🎧">
+    <div class="mbtns">
+      <button class="bcancel" onclick="closeEdit()">취소</button>
+      <button class="bsave"   onclick="saveEdit()">저장</button>
+    </div>
   </div>
 </div>
+
+<!-- ════════════ 플레이어 전체화면 ════════════ -->
+<div id="playerScreen">
+
+  <!-- 플레이어 헤더 -->
+  <div class="pl-hdr">
+    <button class="pl-back" onclick="closePlayer()">&#8592;</button>
+    <div class="pl-hdr-title">🗣️ 영어 말하기 연습</div>
+    <div class="pl-hdr-cnt" id="plCnt">0 files</div>
+  </div>
+
+  <div class="pl-body">
+
+    <!-- 좌: 컨트롤 -->
+    <div class="pl-ctrl">
+
+      <!-- 현재 재생 -->
+      <div class="pl-now">
+        <div class="pl-now-lbl">NOW PLAYING</div>
+        <div class="pl-now-name" id="plName">파일을 선택하세요</div>
+        <div class="pl-now-idx"  id="plIdx">—</div>
+      </div>
+
+      <!-- 시크바 + AB 바 -->
+      <div class="pl-seek-wrap">
+        <div class="pl-time-row">
+          <span id="plCur">0:00</span>
+          <span id="plDur">0:00</span>
+        </div>
+        <input type="range" class="pl-seek" id="plSeek" value="0" min="0" max="100" step="0.1">
+        <div class="ab-track"><div class="ab-fill" id="abFill" style="left:0%;width:0%"></div></div>
+      </div>
+
+      <!-- 메인 재생 버튼 -->
+      <button class="pl-play" id="plPlayBtn" onclick="togglePlay()">&#9654;</button>
+
+      <!-- 트랜스포트 3x2 그리드 -->
+      <div class="pl-trans">
+        <button class="tb" onclick="prevTrack()"><span class="ti">&#9198;</span><span>이전</span></button>
+        <button class="tb" onclick="seekBack1s()"><span class="ti">&#9194;</span><span>-1초</span></button>
+        <button class="tb" onclick="nextTrack()"><span class="ti">&#9197;</span><span>다음</span></button>
+        <button class="tb" id="btnA" onclick="setAbA()"><span class="ti">&#9398;</span><span>구간시작</span></button>
+        <button class="tb" id="btnB" onclick="setAbB()"><span class="ti">&#9399;</span><span>구간끝</span></button>
+        <button class="tb" id="btnClr" onclick="clearAb()"><span class="ti">&#8635;</span><span>반복해제</span></button>
+      </div>
+
+      <!-- 배속 -->
+      <div class="spd-row">
+        <span class="spd-lbl">SPEED</span>
+        <button class="sb" onclick="setSpd(0.5)">0.5x</button>
+        <button class="sb" onclick="setSpd(0.75)">0.75x</button>
+        <button class="sb on" id="spd1" onclick="setSpd(1)">1x</button>
+        <button class="sb" onclick="setSpd(1.25)">1.25x</button>
+        <button class="sb" onclick="setSpd(1.5)">1.5x</button>
+      </div>
+
+    </div><!-- /pl-ctrl -->
+
+    <!-- 우: 재생 목록 -->
+    <div class="pl-list">
+      <div class="pl-list-hdr">재생 목록</div>
+      <div class="pl-list-body" id="plListBody">
+        <div class="pl-empty">
+          <div class="em">🎵</div>
+          <p>아래 버튼으로<br>음성 파일을 선택하세요</p>
+        </div>
+      </div>
+      <div class="pl-add-wrap">
+        <label class="pl-add-lbl">
+          &#43; 파일 추가
+          <input type="file" id="fileMore" accept="audio/*" multiple style="display:none" onchange="addFiles(this)">
+        </label>
+      </div>
+    </div><!-- /pl-list -->
+
+  </div><!-- /pl-body -->
+</div><!-- /playerScreen -->
+
+<!-- 숨김 파일 입력 -->
+<input type="file" id="fileInput" accept="audio/*" multiple style="display:none" onchange="loadFiles(this)">
+<!-- 오디오 엘리먼트 -->
+<audio id="audioEl"></audio>
+
+<!-- 토스트 -->
 <div id="toast"></div>
+
 <script>
-const DEF=[{title:'해커스 AP News 받아쓰기',url:'https://www.hackers.co.kr',icon:'🎧'},{title:'TED-Ed 강의 1건 듣기',url:'https://ed.ted.com',icon:'🎬'},{title:'영어 말하기 연습',url:'https://www.google.com',icon:'🗣️'},{title:'Speak 영어 회화',url:'https://www.speak.com',icon:'💬'}];
-const AC=['#5b8dee','#f7c948','#3ecf8e','#f06595'],AB=['①','②','③','④'],DK=['일','월','화','수','목','금','토'],ME=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-let items=ld('engPWA_items',DEF),logs=ld('engPWA_logs',{});
-let cY,cM,eIdx=null;
-const td=new Date();td.setHours(0,0,0,0);const TK=fmt(td);
-function ld(k,def){try{return JSON.parse(localStorage.getItem(k))||def;}catch{return def;}}
-function sv(){localStorage.setItem('engPWA_items',JSON.stringify(items));localStorage.setItem('engPWA_logs',JSON.stringify(logs));}
-function fmt(d){return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate());}
-function p2(n){return String(n).padStart(2,'0');}
-window.addEventListener('load',()=>{
-  if(!logs[TK])logs[TK]=[false,false,false,false];
-  cY=td.getFullYear();cM=td.getMonth();
-  document.getElementById('hdrDate').textContent=(td.getMonth()+1)+'.'+td.getDate()+' ('+DK[td.getDay()]+')';
-  renderStudy();renderCal();buildLegend();
-  setTimeout(()=>{const s=document.getElementById('splash');s.classList.add('fade');setTimeout(()=>s.remove(),500);},1300);
-  const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent);
-  const isStandalone=window.matchMedia('(display-mode:standalone)').matches||navigator.standalone;
-  if(isIOS&&!isStandalone&&!localStorage.getItem('iosHintDone'))document.getElementById('iosHint').classList.add('show');
+/* ═══════════════════════════════════════
+   데이터 & 초기화
+═══════════════════════════════════════ */
+const DEFAULTS = [
+  { title:'해커스 AP News 받아쓰기', url:'https://www.hackers.co.kr', icon:'🎧', type:'link'   },
+  { title:'TED-Ed 강의 1건 듣기',    url:'https://ed.ted.com',        icon:'🎬', type:'link'   },
+  { title:'영어 말하기 연습',          url:'',                          icon:'🗣️', type:'player' },
+  { title:'Speak 영어 회화',           url:'speak://',                  icon:'💬', type:'speak'  },
+];
+const COLORS = ['#5b8dee','#f7c948','#3ecf8e','#f06595'];
+const ABBR   = ['①','②','③','④'];
+const DAYKO  = ['일','월','화','수','목','금','토'];
+const MONEN  = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+
+function lsGet(k, def) { try { const v = JSON.parse(localStorage.getItem(k)); return (v && (Array.isArray(v) ? v.length : true)) ? v : def; } catch { return def; } }
+function lsSet(k, v)   { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} }
+
+let items = lsGet('engItems', DEFAULTS);
+let logs  = lsGet('engLogs',  {});
+let calY, calM, editIdx = null;
+
+const today = new Date(); today.setHours(0,0,0,0);
+const TK = dateFmt(today);
+
+function dateFmt(d) { return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function pad2(n)    { return String(n).padStart(2,'0'); }
+function timeFmt(s) { if (!s || isNaN(s)) return '0:00'; return Math.floor(s/60) + ':' + pad2(Math.floor(s%60)); }
+function saveAll()  { lsSet('engItems', items); lsSet('engLogs', logs); }
+
+/* ── 앱 초기화 ── */
+window.addEventListener('load', () => {
+  if (!logs[TK]) logs[TK] = [false,false,false,false];
+  calY = today.getFullYear();
+  calM = today.getMonth();
+  document.getElementById('hdrDate').textContent =
+    (today.getMonth()+1) + '.' + today.getDate() + ' (' + DAYKO[today.getDay()] + ')';
+  renderStudy();
+  renderCal();
+  buildLegend();
+  setTimeout(() => {
+    const s = document.getElementById('splash');
+    s.classList.add('fade');
+    setTimeout(() => s.remove(), 500);
+  }, 1300);
+  // iOS PWA 힌트
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode:standalone)').matches || navigator.standalone;
+  if (isIOS && !isStandalone && !localStorage.getItem('iosHintDone'))
+    document.getElementById('iosHint').classList.add('show');
 });
-window.addEventListener('online',()=>document.getElementById('offlineBadge').classList.remove('show'));
-window.addEventListener('offline',()=>document.getElementById('offlineBadge').classList.add('show'));
-if(!navigator.onLine)document.getElementById('offlineBadge').classList.add('show');
-let dP=null;
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dP=e;if(!localStorage.getItem('pwaDismissed'))document.getElementById('installBanner').classList.add('show');});
-document.getElementById('installBtn').addEventListener('click',async()=>{if(!dP)return;dP.prompt();const{outcome}=await dP.userChoice;if(outcome==='accepted')toast('🎉 홈 화면에 추가됐어요!');dP=null;document.getElementById('installBanner').classList.remove('show');});
-document.getElementById('installClose').addEventListener('click',()=>{document.getElementById('installBanner').classList.remove('show');localStorage.setItem('pwaDismissed','1');});
-document.getElementById('iosClose').addEventListener('click',()=>{document.getElementById('iosHint').classList.remove('show');localStorage.setItem('iosHintDone','1');});
-window.addEventListener('appinstalled',()=>{document.getElementById('installBanner').classList.remove('show');toast('✅ 앱 설치 완료!');});
-if('serviceWorker' in navigator)navigator.serviceWorker.register('./sw.js').catch(()=>{});
-function renderStudy(){
-  const chk=logs[TK]||[false,false,false,false],done=chk.filter(Boolean).length;
-  document.getElementById('progFill').style.width=done*25+'%';
-  document.getElementById('progLbl').textContent=done+'/4';
-  const list=document.getElementById('studyList');list.innerHTML='';
-  items.forEach((item,i)=>{
-    const d=chk[i],ac=AC[i],el=document.createElement('div');
-    el.className='scard c'+(i+1)+(d?' done':'');
-    el.innerHTML='<div class="cr1"><div class="cico" style="background:'+ac+'28">'+item.icon+'</div><div class="cinf"><div class="ctit">'+item.title+'</div><div class="curl">'+item.url+'</div></div><button class="ckbtn'+(d?' on':'')+'" onclick="tog('+i+')">'+(d?'✓':'')+'</button></div><div class="cr2"><a class="obtn" style="background:'+ac+'20;border:1px solid '+ac+'40;color:'+ac+'" href="'+item.url+'" target="_blank" rel="noopener">↗ 열기</a><button class="ebtn" onclick="openMod('+i+')">✏️ 편집</button></div>';
+
+/* ── 온/오프라인 ── */
+window.addEventListener('online',  () => document.getElementById('offBadge').classList.remove('show'));
+window.addEventListener('offline', () => document.getElementById('offBadge').classList.add('show'));
+if (!navigator.onLine) document.getElementById('offBadge').classList.add('show');
+
+/* ── PWA 설치 ── */
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredPrompt = e;
+  if (!localStorage.getItem('pwaDismissed')) document.getElementById('iBanner').classList.add('show');
+});
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  if (outcome === 'accepted') showToast('🎉 홈 화면에 추가됐어요!');
+  deferredPrompt = null;
+  document.getElementById('iBanner').classList.remove('show');
+});
+document.getElementById('installClose').addEventListener('click', () => {
+  document.getElementById('iBanner').classList.remove('show');
+  localStorage.setItem('pwaDismissed', '1');
+});
+document.getElementById('iosClose').addEventListener('click', () => {
+  document.getElementById('iosHint').classList.remove('show');
+  localStorage.setItem('iosHintDone', '1');
+});
+window.addEventListener('appinstalled', () => {
+  document.getElementById('iBanner').classList.remove('show');
+  showToast('✅ 앱 설치 완료!');
+});
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(() => {});
+
+/* ═══════════════════════════════════════
+   학습 카드 렌더링
+═══════════════════════════════════════ */
+function renderStudy() {
+  const chk  = logs[TK] || [false,false,false,false];
+  const done = chk.filter(Boolean).length;
+  document.getElementById('progFill').style.width = (done * 25) + '%';
+  document.getElementById('progLbl').textContent  = done + '/4';
+
+  const list = document.getElementById('studyList');
+  list.innerHTML = '';
+
+  items.forEach((item, i) => {
+    const isDone = chk[i];
+    const color  = COLORS[i];
+    const el = document.createElement('div');
+    el.className = 'scard c' + (i+1) + (isDone ? ' done' : '');
+
+    // 하단 버튼 행 — 타입별 분기
+    let actionRow = '';
+
+    if (item.type === 'player') {
+      // 항목 3: 파일 선택 + 편집 + 체크
+      actionRow = `
+        <div class="cr2">
+          <button class="file-btn" onclick="openFileInput()">
+            🎵 파일 선택 &amp; 재생
+          </button>
+          <button class="ebtn" onclick="openEditModal(${i})">✏️</button>
+          <button class="ckbtn${isDone?' on':''}" onclick="toggleCheck(${i})">${isDone?'✓':''}</button>
+        </div>`;
+    } else if (item.type === 'speak') {
+      // 항목 4: Speak 앱 실행
+      actionRow = `
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <button class="speak-btn" onclick="launchSpeak()">
+            🚀 Speak 앱 실행
+          </button>
+          <div class="cr2">
+            <button class="ebtn" style="flex:1" onclick="openEditModal(${i})">✏️ 편집</button>
+            <button class="ckbtn${isDone?' on':''}" onclick="toggleCheck(${i})">${isDone?'✓':''}</button>
+          </div>
+        </div>`;
+    } else {
+      // 항목 1,2: 링크 열기
+      actionRow = `
+        <div class="cr2">
+          <a class="obtn" style="background:${color}20;border:1px solid ${color}44;color:${color}"
+             href="${item.url}" target="_blank" rel="noopener">↗ 열기</a>
+          <button class="ebtn" onclick="openEditModal(${i})">✏️</button>
+          <button class="ckbtn${isDone?' on':''}" onclick="toggleCheck(${i})">${isDone?'✓':''}</button>
+        </div>`;
+    }
+
+    const subText = item.type === 'player' ? '음성 파일 선택 후 재생'
+                  : item.type === 'speak'  ? 'Speak 앱 실행'
+                  : item.url;
+
+    el.innerHTML = `
+      <div class="cr1">
+        <div class="cico" style="background:${color}28">${item.icon}</div>
+        <div class="cinf">
+          <div class="ctit">${item.title}</div>
+          <div class="curl">${subText}</div>
+        </div>
+      </div>
+      ${actionRow}`;
     list.appendChild(el);
   });
 }
-function tog(i){if(!logs[TK])logs[TK]=[false,false,false,false];logs[TK][i]=!logs[TK][i];sv();renderStudy();renderCal();toast(logs[TK][i]?'✅ 완료!':'↩ 해제');}
-function sw(name){['study','calendar'].forEach(n=>{document.getElementById('tab-'+n).classList.toggle('active',n===name);document.getElementById('page-'+n).classList.toggle('active',n===name);});if(name==='calendar')setTimeout(()=>document.querySelector('.crow.tdy')?.scrollIntoView({block:'center',behavior:'smooth'}),80);}
-function buildLegend(){const lg=document.getElementById('legend');AC.forEach((c,i)=>lg.innerHTML+='<div class="lgit"><div class="lgdot" style="background:'+c+'"></div>'+AB[i]+items[i].title.slice(0,4)+'</div>');}
-function chM(d){cM+=d;if(cM>11){cM=0;cY++;}if(cM<0){cM=11;cY--;}renderCal();}
-function renderCal(){
-  document.getElementById('calTtl').textContent=cY+' · '+ME[cM];
-  const list=document.getElementById('calList');list.innerHTML='';
-  const days=new Date(cY,cM+1,0).getDate();
-  for(let d=1;d<=days;d++){
-    const date=new Date(cY,cM,d),key=fmt(date),dow=date.getDay();
-    const isT=key===TK,isF=date>td,chk=logs[key]||[false,false,false,false];
-    const dc=dow===0?'sun':dow===6?'sat':'';
-    const row=document.createElement('div');row.className='crow'+(isT?' tdy':'');
-    let dots='';for(let i=0;i<4;i++){const cl=isF?'future':chk[i]?'done':'undone';dots+='<div class="dot d'+(i+1)+' '+cl+'" title="'+(items[i]?.title||'')+'">'+AB[i]+'</div>';}
-    row.innerHTML='<div><div class="dnum'+(isT?' tdy':'')+' '+dc+'">'+p2(d)+'</div><div class="dname '+dc+'">'+DK[dow]+'</div></div><div class="dots">'+dots+'</div>';
+
+function toggleCheck(i) {
+  if (!logs[TK]) logs[TK] = [false,false,false,false];
+  logs[TK][i] = !logs[TK][i];
+  saveAll(); renderStudy(); renderCal();
+  showToast(logs[TK][i] ? '✅ 완료!' : '↩ 해제');
+}
+
+/* ── 탭 전환 ── */
+function switchTab(name) {
+  ['study','calendar'].forEach(n => {
+    document.getElementById('tab-'  + n).classList.toggle('active', n === name);
+    document.getElementById('page-' + n).classList.toggle('active', n === name);
+  });
+  if (name === 'calendar')
+    setTimeout(() => document.querySelector('.crow.tdy')?.scrollIntoView({ block:'center', behavior:'smooth' }), 80);
+}
+
+/* ═══════════════════════════════════════
+   Speak 앱 딥링크 실행
+═══════════════════════════════════════ */
+function launchSpeak() {
+  const ua = navigator.userAgent;
+  const isAndroid = /android/i.test(ua);
+  const isIOS     = /iphone|ipad|ipod/i.test(ua);
+  if (isAndroid) {
+    window.location.href = 'intent://speak.com#Intent;scheme=https;package=com.speak.app;end';
+    setTimeout(() => { window.location.href = 'https://play.google.com/store/apps/details?id=com.speak.app'; }, 1500);
+  } else if (isIOS) {
+    window.location.href = 'speak://';
+    setTimeout(() => { window.location.href = 'https://apps.apple.com/app/speak-language-learning/id1477698523'; }, 1500);
+  } else {
+    window.open('https://www.speak.com', '_blank');
+  }
+  showToast('🚀 Speak 앱 실행 중...');
+}
+
+/* ═══════════════════════════════════════
+   달력
+═══════════════════════════════════════ */
+function buildLegend() {
+  const lg = document.getElementById('legend');
+  COLORS.forEach((c, i) => {
+    lg.innerHTML += `<div class="lgit"><div class="lgdot" style="background:${c}"></div>${ABBR[i]}${items[i].title.slice(0,4)}</div>`;
+  });
+}
+function chMonth(d) {
+  calM += d;
+  if (calM > 11) { calM = 0; calY++; }
+  if (calM < 0)  { calM = 11; calY--; }
+  renderCal();
+}
+function renderCal() {
+  document.getElementById('calTtl').textContent = calY + ' · ' + MONEN[calM];
+  const list = document.getElementById('calList');
+  list.innerHTML = '';
+  const days = new Date(calY, calM+1, 0).getDate();
+  for (let d = 1; d <= days; d++) {
+    const date = new Date(calY, calM, d);
+    const key  = dateFmt(date);
+    const dow  = date.getDay();
+    const isT  = key === TK;
+    const isF  = date > today;
+    const chk  = logs[key] || [false,false,false,false];
+    const dc   = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
+    const row  = document.createElement('div');
+    row.className = 'crow' + (isT ? ' tdy' : '');
+    let dots = '';
+    for (let i = 0; i < 4; i++) {
+      const cl = isF ? 'future' : chk[i] ? 'done' : 'undone';
+      dots += `<div class="dot d${i+1} ${cl}" title="${items[i]?.title||''}">${ABBR[i]}</div>`;
+    }
+    row.innerHTML = `
+      <div>
+        <div class="dnum${isT?' tdy':''} ${dc}">${pad2(d)}</div>
+        <div class="dname ${dc}">${DAYKO[dow]}</div>
+      </div>
+      <div class="dots">${dots}</div>`;
     list.appendChild(row);
   }
 }
-function openMod(i){eIdx=i;document.getElementById('eTitle').value=items[i].title;document.getElementById('eUrl').value=items[i].url;document.getElementById('eIcon').value=items[i].icon;document.getElementById('mTtl').textContent='항목 '+(i+1)+' 편집';document.getElementById('overlay').classList.add('open');}
-function closeMod(){document.getElementById('overlay').classList.remove('open');}
-document.getElementById('overlay').addEventListener('click',e=>{if(e.target===e.currentTarget)closeMod();});
-function saveMod(){if(eIdx===null)return;items[eIdx].title=document.getElementById('eTitle').value||items[eIdx].title;items[eIdx].url=document.getElementById('eUrl').value||items[eIdx].url;items[eIdx].icon=document.getElementById('eIcon').value||items[eIdx].icon;sv();closeMod();renderStudy();toast('💾 저장 완료!');}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+
+/* ═══════════════════════════════════════
+   편집 모달
+═══════════════════════════════════════ */
+function openEditModal(i) {
+  editIdx = i;
+  document.getElementById('eTitle').value = items[i].title;
+  document.getElementById('eUrl').value   = items[i].url || '';
+  document.getElementById('eIcon').value  = items[i].icon;
+  document.getElementById('editTitle').textContent = '항목 ' + (i+1) + ' 편집';
+  document.getElementById('editOverlay').classList.add('open');
+}
+function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
+document.getElementById('editOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closeEdit(); });
+function saveEdit() {
+  if (editIdx === null) return;
+  const t = document.getElementById('eTitle').value.trim();
+  const u = document.getElementById('eUrl').value.trim();
+  const ic= document.getElementById('eIcon').value.trim();
+  if (t)  items[editIdx].title = t;
+  if (u && items[editIdx].type === 'link') items[editIdx].url = u;
+  if (ic) items[editIdx].icon  = ic;
+  saveAll(); closeEdit(); renderStudy();
+  showToast('💾 저장 완료!');
+}
+
+/* ═══════════════════════════════════════
+   플레이어
+═══════════════════════════════════════ */
+const audio = document.getElementById('audioEl');
+let playlist  = [];   // { name, objUrl, dur }
+let curIdx    = -1;
+let abA       = null;
+let abB       = null;
+let isSeeking = false;
+
+/* 파일 선택 열기 */
+function openFileInput() { document.getElementById('fileInput').click(); }
+
+/* 파일 로드 (새로 선택) */
+function loadFiles(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  // 기존 objectURL 해제
+  playlist.forEach(p => URL.revokeObjectURL(p.objUrl));
+  playlist = [];
+  curIdx = -1; abA = null; abB = null;
+  audio.pause(); audio.src = '';
+  resetAbUI();
+
+  files.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  files.forEach(f => playlist.push({ name: cleanName(f.name), objUrl: URL.createObjectURL(f), dur: 0 }));
+
+  openPlayer();
+  renderPlaylist();
+  if (playlist.length > 0) loadTrack(0);
+  input.value = '';
+}
+
+/* 파일 추가 */
+function addFiles(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  files.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+  files.forEach(f => playlist.push({ name: cleanName(f.name), objUrl: URL.createObjectURL(f), dur: 0 }));
+  renderPlaylist();
+  updateCount();
+  showToast('➕ ' + files.length + '개 추가됨');
+  input.value = '';
+}
+
+function cleanName(n) { return n.replace(/\.[^/.]+$/, ''); }
+
+/* 플레이어 열기/닫기 */
+function openPlayer()  { document.getElementById('playerScreen').classList.add('open'); }
+function closePlayer() { document.getElementById('playerScreen').classList.remove('open'); }
+
+/* 트랙 수 업데이트 */
+function updateCount() {
+  document.getElementById('plCnt').textContent = playlist.length + '개 파일';
+}
+
+/* 재생 목록 렌더링 */
+function renderPlaylist() {
+  updateCount();
+  const body = document.getElementById('plListBody');
+  if (!playlist.length) {
+    body.innerHTML = '<div class="pl-empty"><div class="em">🎵</div><p>아래 버튼으로<br>음성 파일을 선택하세요</p></div>';
+    return;
+  }
+  body.innerHTML = '';
+  playlist.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'pl-item' + (i === curIdx ? ' now' : '');
+    div.id = 'pli-' + i;
+    div.onclick = () => loadTrack(i);
+    div.innerHTML =
+      '<span class="pl-num">' + (i+1) + '</span>' +
+      '<span class="pl-ico">' + (i === curIdx ? '🔊' : '🎵') + '</span>' +
+      '<span class="pl-name">' + t.name + '</span>' +
+      '<span class="pl-dur" id="pdur-' + i + '">' + (t.dur ? timeFmt(t.dur) : '') + '</span>';
+    body.appendChild(div);
+  });
+}
+
+/* 트랙 로드 & 재생 */
+function loadTrack(i) {
+  if (i < 0 || i >= playlist.length) return;
+  curIdx = i;
+  abA = null; abB = null; resetAbUI();
+  audio.src = playlist[i].objUrl;
+  audio.load();
+  audio.play().then(() => {
+    document.getElementById('plPlayBtn').innerHTML = '&#9646;&#9646;';
+  }).catch(() => {});
+  document.getElementById('plName').textContent = playlist[i].name;
+  document.getElementById('plIdx').textContent  = (i+1) + ' / ' + playlist.length;
+  renderPlaylist();
+  setTimeout(() => document.getElementById('pli-' + i)?.scrollIntoView({ block:'nearest', behavior:'smooth' }), 60);
+}
+
+/* 재생 / 정지 토글 */
+function togglePlay() {
+  if (!audio.src || !playlist.length) { showToast('먼저 파일을 선택하세요'); return; }
+  if (audio.paused) {
+    audio.play();
+    document.getElementById('plPlayBtn').innerHTML = '&#9646;&#9646;';
+  } else {
+    audio.pause();
+    document.getElementById('plPlayBtn').innerHTML = '&#9654;';
+  }
+}
+
+/* 이전 / 다음 트랙 */
+function prevTrack() { if (curIdx > 0) loadTrack(curIdx - 1); else showToast('첫 번째 파일입니다'); }
+function nextTrack() { if (curIdx < playlist.length - 1) loadTrack(curIdx + 1); else showToast('마지막 파일입니다'); }
+
+/* 1초 뒤로 */
+function seekBack1s() { audio.currentTime = Math.max(0, audio.currentTime - 1); }
+
+/* ── AB 반복 구간 ── */
+function setAbA() {
+  if (!audio.src) { showToast('먼저 파일을 선택하세요'); return; }
+  abA = audio.currentTime;
+  abB = null;
+  document.getElementById('btnA').classList.add('set');
+  document.getElementById('btnA').classList.remove('loop-on');
+  document.getElementById('btnB').classList.remove('set','loop-on');
+  updateAbBar();
+  showToast('🅐 시작: ' + timeFmt(abA));
+}
+function setAbB() {
+  if (abA === null) { showToast('먼저 구간 시작(A)을 누르세요'); return; }
+  const t = audio.currentTime;
+  if (t <= abA) { showToast('끝 지점이 시작보다 앞입니다'); return; }
+  abB = t;
+  document.getElementById('btnA').classList.add('loop-on');
+  document.getElementById('btnB').classList.add('set','loop-on');
+  updateAbBar();
+  showToast('🅑 끝: ' + timeFmt(abB) + ' — 반복 시작!');
+}
+function clearAb() {
+  abA = null; abB = null;
+  resetAbUI();
+  showToast('↺ 반복 구간 해제');
+}
+function resetAbUI() {
+  ['btnA','btnB','btnClr'].forEach(id => {
+    document.getElementById(id)?.classList.remove('set','loop-on');
+  });
+  const f = document.getElementById('abFill');
+  if (f) { f.style.left = '0%'; f.style.width = '0%'; }
+}
+function updateAbBar() {
+  const dur = audio.duration || 1;
+  const f   = document.getElementById('abFill');
+  if (!f) return;
+  if (abA !== null && abB !== null) {
+    f.style.left  = (abA / dur * 100).toFixed(1) + '%';
+    f.style.width = ((abB - abA) / dur * 100).toFixed(1) + '%';
+  } else if (abA !== null) {
+    f.style.left  = (abA / dur * 100).toFixed(1) + '%';
+    f.style.width = '2px';
+  } else {
+    f.style.left = '0%'; f.style.width = '0%';
+  }
+}
+
+/* 배속 */
+function setSpd(s) {
+  audio.playbackRate = s;
+  document.querySelectorAll('.sb').forEach(b => {
+    b.classList.toggle('on', parseFloat(b.textContent) === s);
+  });
+  showToast('⚡ ' + s + '× 배속');
+}
+
+/* 시크바 이벤트 */
+const seekEl = document.getElementById('plSeek');
+seekEl.addEventListener('mousedown',  () => isSeeking = true);
+seekEl.addEventListener('touchstart', () => isSeeking = true, { passive: true });
+seekEl.addEventListener('change', () => {
+  if (audio.duration) audio.currentTime = audio.duration * seekEl.value / 100;
+  isSeeking = false;
+});
+seekEl.addEventListener('input', () => {
+  if (audio.duration)
+    document.getElementById('plCur').textContent = timeFmt(audio.duration * seekEl.value / 100);
+});
+
+/* 오디오 이벤트 */
+audio.addEventListener('timeupdate', () => {
+  if (isNaN(audio.duration)) return;
+  if (!isSeeking) seekEl.value = (audio.currentTime / audio.duration * 100).toFixed(2);
+  document.getElementById('plCur').textContent = timeFmt(audio.currentTime);
+  updateAbBar();
+  // AB 반복
+  if (abA !== null && abB !== null && audio.currentTime >= abB) audio.currentTime = abA;
+});
+audio.addEventListener('loadedmetadata', () => {
+  document.getElementById('plDur').textContent = timeFmt(audio.duration);
+  if (curIdx >= 0) {
+    playlist[curIdx].dur = audio.duration;
+    const el = document.getElementById('pdur-' + curIdx);
+    if (el) el.textContent = timeFmt(audio.duration);
+  }
+});
+audio.addEventListener('ended', () => {
+  document.getElementById('plPlayBtn').innerHTML = '&#9654;';
+  if (curIdx < playlist.length - 1) loadTrack(curIdx + 1);
+  else showToast('🏁 재생 완료!');
+});
+audio.addEventListener('pause',  () => { document.getElementById('plPlayBtn').innerHTML = '&#9654;'; });
+audio.addEventListener('play',   () => { document.getElementById('plPlayBtn').innerHTML = '&#9646;&#9646;'; });
+
+/* ── 토스트 ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2000);
+}
 </script>
 </body>
 </html>
